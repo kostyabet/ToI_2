@@ -12,7 +12,7 @@ namespace ToI_2
     {
         private char[] goodKeys = { '0', '1' };
 
-        private string PLAINT_TEXT;
+        private string PLAIN_TEXT;
         private string GENERATED_KEY;
         private string CIPER_TEXT;
 
@@ -80,11 +80,11 @@ namespace ToI_2
         private char getNewValue(int[] genPos, char[] key)
         {
             char first;
-            char second = key[genPos[0] - 1];
+            char second = key[36 - genPos[0]];
             for (var i = 1; i < genPos.Length; i++)
             {
                 first = second;
-                second = key[genPos[i] - 1];
+                second = key[36 - genPos[i]];
                 second = xorNums(first, second);
             }
             return second;
@@ -103,8 +103,9 @@ namespace ToI_2
 
             while (bits.Length < length)
             {
+                char newChar = getNewValue(xorPositions, genKey);
                 genKey = shiftKey(genKey);
-                genKey[genKey.Length - 1] = getNewValue(xorPositions, genKey);
+                genKey[genKey.Length - 1] = newChar;
                 bits.Append(genKey[genKey.Length - 1]);
             }
 
@@ -157,18 +158,18 @@ namespace ToI_2
             }
 
             /* Plain text part */
-            if (PLAINT_TEXT.Length == 0)
+            if (PLAIN_TEXT == null || PLAIN_TEXT.Length == 0)
             {
                 MessageBox.Show("Введите исходные данные через файл.", "Ошибка!");
                 return;
             }
 
             /* Generate key part */
-            GENERATED_KEY = generateByLFSR(key.Substring(0, 36), PLAINT_TEXT.Length);
+            GENERATED_KEY = generateByLFSR(key.Substring(0, 36), PLAIN_TEXT.Length);
             setGeneratedText(genKeyTextBox, GENERATED_KEY);
 
             /* Cipher part */
-            CIPER_TEXT = encryptionAlghoritm(PLAINT_TEXT, GENERATED_KEY);
+            CIPER_TEXT = encryptionAlghoritm(PLAIN_TEXT, GENERATED_KEY);
             setGeneratedText(cypherTextBox, CIPER_TEXT);
 
             /* Enables */
@@ -236,8 +237,8 @@ namespace ToI_2
                 string result;
                 (status, result) = ReadFileAsBits(openFileDialog.FileName);
                 if (status) {
-                    PLAINT_TEXT = result;
-                    setGeneratedText(plainTextBox, PLAINT_TEXT);
+                    PLAIN_TEXT = result;
+                    setGeneratedText(plainTextBox, PLAIN_TEXT);
                     return;
                 }
                 MessageBox.Show("Данные в файле не являются корректными.", "Ошибка!");
